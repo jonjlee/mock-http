@@ -41,32 +41,33 @@ public class MockHttp {
         http.start();
     }
     
-    public RequestDescription get(String path, String... headers) {
-        return onMethod("GET", path, null, headers);
+    public RequestDescription get(String url, String... headers) {
+        return onMethod("GET", url, null, headers);
     }
 
-    public RequestDescription put(String path) {
-        return put(path, null);
+    public RequestDescription put(String url) {
+        return put(url, null);
     }
 
-    public RequestDescription put(String path, String body, String... headers) {
-        return onMethod("PUT", path, body, headers);
+    public RequestDescription put(String url, String body, String... headers) {
+        return onMethod("PUT", url, body, headers);
     }
 
-    public RequestDescription post(String path) {
-        return post(path, null);
+    public RequestDescription post(String url) {
+        return post(url, null);
     }
 
-    public RequestDescription post(String path, String body, String... headers) {
-        return onMethod("POST", path, body, headers);
+    public RequestDescription post(String url, String body, String... headers) {
+        return onMethod("POST", url, body, headers);
     }
 
-    public RequestDescription delete(String path, String... headers) {
-        return onMethod("DELETE", path, null, headers);
+    public RequestDescription delete(String url, String... headers) {
+        return onMethod("DELETE", url, null, headers);
     }
 
-    public RequestDescription onMethod(String methodName, String path, String body, String[] headers) {
-        return new RequestDescription(this, methodName, path, body, Utils.parseHeaders(headers));
+    public RequestDescription onMethod(String methodName, String url, String body, String[] headers) {
+        UrlParts urlParts = UrlParts.parse(url);
+        return new RequestDescription(this, methodName, url.getPath(), url.getQueryParams(), body, Utils.parseHeaders(headers));
     }
     
     
@@ -89,8 +90,8 @@ public class MockHttp {
         return null;
     }
 
-    public ResponseDescription nextMapping(String methodName, String path, String body, Map<String, String> headers) {
-        Queue<ResponseDescription> responses = getMapping(new RequestDescription(null, methodName, path, body, headers));
+    public ResponseDescription nextMapping(String methodName, String url, String body, Map<String, String> headers) {
+        Queue<ResponseDescription> responses = getMapping(new RequestDescription(null, methodName, url, body, headers));
         if (responses == null)
             return null;
         if (responses.size() == 1)
@@ -106,12 +107,12 @@ public class MockHttp {
         }
     }
 
-    public void logRequest(String methodName, String path, String body, Map<String, String> headers) {
-        requestLog.log(methodName, path, body, headers);
+    public void logRequest(String methodName, String url, String body, Map<String, String> headers) {
+        requestLog.log(methodName, url, body, headers);
     }
 
-    public int getRequestCount(String methodName, String path, String body, Map<String, String> headers) {
-        return requestLog.count(methodName, path, body, headers);
+    public int getRequestCount(String methodName, String url, String body, Map<String, String> headers) {
+        return requestLog.count(methodName, url, body, headers);
     }
 
     public void shutdown() {
